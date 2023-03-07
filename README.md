@@ -1,2 +1,2 @@
-# cpp-mini-games
-C++ Terminal Mini Games
+# C++ Mini Games
+Docs soon...

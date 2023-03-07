@@ -1,10 +1,14 @@
-// INCLUDES
+
+// ===== INCLUDES ===== //
+
 #include <string>
 
-// ENGINE
+// ===== ENGINE ===== //
+
 void clrscr();
 std::string toLowerEach(std::string input);
 std::string stringPrompt(std::string message, bool lowercase);
 
-// GAMES
+// ===== GAMES ===== //
+
 int blackjack();

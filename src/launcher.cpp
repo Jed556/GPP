@@ -1,6 +1,6 @@
 #include <string>
 
-#include "games.h"
+#include "games/games.h"
 
 int main() {
 Start:

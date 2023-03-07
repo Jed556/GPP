@@ -1,4 +1,4 @@
-#include "games.h"  // HEADER
+#include "games/games.h"  // HEADER
 
 // INCLUDES
 #include <cctype>

@@ -29,6 +29,58 @@ bool Ace, dAce, stand;
 bool restart;
 int playerMoney = 1000, bet, prize;
 
+// CARD STRUCTURE
+class Cards {
+   private:
+    std::string* cards;
+    int size;
+
+   public:
+    Cards(std::string cardsArray[], int size)
+        : cards(new std::string[size]), size(size) {
+        std::copy(cardsArray, cardsArray + size, cards);
+    }
+
+    ~Cards() {
+        delete[] cards;
+    }
+
+    std::string getCard(int index) const {
+        return cards[index];
+    }
+
+    void setCard(int index, std::string value) {
+        cards[index] = value;
+    }
+
+    void setCardToNull(int index) {
+        cards[index] = "";
+    }
+
+    std::string* getCardArray() {
+        return cards;
+    }
+
+    int getCardValue(int index) {
+        std::string card = cards[index];
+        if (card[0] == 'A') {
+            return 1;
+        } else if (card[0] >= '2' && card[0] <= '9') {
+            return card[0] - '0';
+        } else {
+            return 10;
+        }
+    }
+
+    // TODO: Add getTotalValue gets the sum of the value of all cards
+
+    // TODO: Add drawCard draws 2 cards from deck
+
+    int getSize() const {
+        return size;
+    }
+};
+
 // PROTOTYPES
 void PcardConverter();
 void DcardConverter();
@@ -499,10 +551,9 @@ PromptCheck:
 // SYSTEM FUNCTIONS
 
 void title() {
-    std::cout << "----------------------------" << std::endl;
-    std::cout << "    Welcome to Blackjack    " << std::endl;
-    std::cout << "----------------------------" << std::endl
-              << std::endl;
+    std::cout << "---------------------------- \n";
+    std::cout << "    Welcome to Blackjack     \n";
+    std::cout << "---------------------------- \n\n";
 }
 
 // Use this for restart / exit  check only

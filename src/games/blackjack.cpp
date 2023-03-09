@@ -1,67 +1,251 @@
+// HEADERS
 #include "games.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
-
+// INCLUDES
+#include <algorithm>
+#include <array>
 #include <cctype>
-#include <cstdlib>
-#include <ctime>
 #include <iostream>
+#include <random>
+#include <sstream>
 #include <string>
 
 // CONFIG
-std::string cards[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-int maxCards = 10;
+int maxHand = 10;
 
 // VARIABLES
 std::string answer;
-std::string DealerCards[10], PlayerCards[10];
-int PcardCounter, DcardCounter;
-int PcardIndex, DcardIndex;
-int PcardValue, DcardValue;
-int PcardSum, DcardSum;
-int A_OneS, A_ElevenS;
-int DA_OneS, DA_ElevenS;
-bool Ace, dAce, stand;
-bool restart;
 int playerMoney = 1000, bet, prize;
+bool stand, hit;
+bool restart;
 
 // CARD STRUCTURE
-class Cards {
+
+/**
+ * @brief Deck structure
+ */
+class Deck {
    private:
+    std::string suits[4] = {"♠", "♥", "♦", "♣"};
+    std::string faces[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
     std::string* cards;
-    int size;
+    int size = 0;
 
    public:
-    Cards(std::string cardsArray[], int size)
-        : cards(new std::string[size]), size(size) {
-        std::copy(cardsArray, cardsArray + size, cards);
+    /**
+     * @brief Construct a new Deck object
+     */
+    Deck() {
+        for (const std::string& suit : suits) {
+            for (const std::string& face : faces) {
+                cards[size] = suit + face;
+                size++;
+            }
+        }
+        shuffle();
     }
 
-    ~Cards() {
+    /**
+     * @brief Free memory allocated for cards on deck
+     */
+    ~Deck() {
         delete[] cards;
     }
 
-    std::string getCard(int index) const {
-        return cards[index];
-    }
-
+    /**
+     * @brief Change or add card into deck
+     *
+     * @param index Position of card on deck (array index)
+     * @param value Value of the card
+     */
     void setCard(int index, std::string value) {
+        if (index < 0 || index >= size) {
+            throw std::out_of_range("Index out of bounds");
+        }
         cards[index] = value;
     }
 
-    void setCardToNull(int index) {
+    /**
+     * @brief Set card in index to null
+     *
+     * @param index Position of card on deck (array index)
+     */
+    void setNull(int index) {
+        if (index < 0 || index >= size) {
+            throw std::out_of_range("Index out of bounds");
+        }
         cards[index] = "";
     }
 
-    std::string* getCardArray() {
+    /**
+     * @brief Get a card from deck
+     *
+     * @param index Position of card on deck (array index)
+     * @return std::string Card from deck
+     */
+    std::string getCard(int index) const {
+        if (index < 0 || index >= size) {
+            throw std::out_of_range("Index out of bounds");
+        }
+        return cards[index];
+    }
+
+    /**
+     * @brief Get all cards on deck
+     *
+     * @return std::string* All cards on deck
+     */
+    std::string* getDeck() const {
         return cards;
     }
 
-    int getCardValue(int index) {
+    /**
+     * @brief Get the populated size of the deck
+     *
+     * @return int Size of the deck
+     */
+    int getDeckSize() const {
+        int deckSize = 0;  // Small PP
+        for (int i = 0;; i++) {
+            if (cards[i] != "") {
+                deckSize++;
+            } else {
+                break;
+            }
+        }
+        return deckSize;
+    }
+
+    /**
+     * @brief Get maximum card slots on hand
+     *
+     * @return int Max card slots (array size)
+     */
+    int getSize() const {
+        return size;
+    }
+
+    /**
+     * @brief Shuffle all cards on deck
+     *
+     */
+    void shuffle() const {
+        std::random_device rd;
+        std::mt19937 g(rd());
+        std::shuffle(cards, cards + size, g);
+    }
+
+    /**
+     * @brief Get a formatted string of all cards on deck (optional: print to console)
+     *
+     * @param print Whether to print to console or not
+     * @return std::string All cards on deck (formatted string)
+     */
+    std::string printCards(bool print) const {
+        std::stringstream ss;
+
+        for (int i = 0; i < size; i++) {
+            ss << "| " << getCard(i) << " ";
+        }
+        ss << "|";
+
+        std::string output = ss.str();
+        if (print) {
+            std::cout << output << std::endl;
+        }
+
+        return output;
+    }
+};
+
+/**
+ * @brief Hand structure
+ */
+class Hand {
+   private:
+    std::string* cards;
+    int numCards;
+    int size;
+
+   public:
+    /**
+     * @brief Construct a new Cards object
+     *
+     * @param size Maximum number of cards on hand or array size (default: 10)
+     */
+    Hand(int size)
+        : cards(nullptr), size(0) {
+        if (size <= 0) {
+            size = 10;
+        }
+        cards = new std::string[size];
+        this->size = size;
+    }
+
+    /**
+     * @brief Free memory allocated for cards on hand
+     */
+    ~Hand() {
+        delete[] cards;
+    }
+
+    /**
+     * @brief Change or add card into hand
+     *
+     * @param index Position of card on hand (array index)
+     * @param value Value of the card
+     */
+    void setCard(int index, std::string value) {
+        if (index < 0 || index >= size) {
+            throw std::out_of_range("Index out of bounds");
+        }
+        cards[index] = value;
+    }
+
+    /**
+     * @brief Set card in index to null
+     *
+     * @param index Position of card on hand (array index)
+     */
+    void setNull(int index) {
+        if (index < 0 || index >= size) {
+            throw std::out_of_range("Index out of bounds");
+        }
+        cards[index] = "";
+    }
+
+    /**
+     * @brief Get a card from hand
+     *
+     * @param index Position of card on hand (array index)
+     * @return std::string Card from hand
+     */
+    std::string getCard(int index) const {
+        if (index < 0 || index >= size) {
+            throw std::out_of_range("Index out of bounds");
+        }
+        return cards[index];
+    }
+
+    /**
+     * @brief Get all cards on hand
+     *
+     * @return std::string* All cards on hand
+     */
+    std::string* getHand() const {
+        return cards;
+    }
+
+    /**
+     * @brief Get card value
+     *
+     * @param index Position of card on hand (array index)
+     * @return int
+     */
+    int getValue(int index) const {
+        if (index < 0 || index >= size) {
+            throw std::out_of_range("Index out of bounds");
+        }
         std::string card = cards[index];
         if (card[0] == 'A') {
             return 1;
@@ -72,19 +256,123 @@ class Cards {
         }
     }
 
-    // TODO: Add getTotalValue gets the sum of the value of all cards
+    /**
+     * @brief Get the total value of all cards on hand
+     *
+     * @return std::array<int, 2> Total value of cards on hand
+     */
+    std::array<int, 2> getTotalValue() const {
+        int sum = 0;
+        int num_aces = 0;
+        for (int i = 0; i < size; i++) {
+            int card_value = getValue(i);
+            if (card_value == 1) {
+                num_aces++;
+            }
+            sum += card_value;
+        }
 
-    // TODO: Add drawCard draws 2 cards from deck
+        std::array<int, 2> total_value{sum, 0};
+        if (num_aces > 0) {
+            int ace_high_sum = sum + 10 * num_aces;
+            if (ace_high_sum <= 21) {
+                total_value[1] = ace_high_sum;
+            }
+        }
+        return total_value;
+    }
 
+    /**
+     * @brief Get the Hand Size object
+     *
+     * @return int Population of cards on hand
+     */
+    int getHandSize() const {
+        int handSize = 0;  // Small PP
+        for (int i = 0;; i++) {
+            if (cards[i] != "") {
+                handSize++;
+            } else {
+                break;
+            }
+        }
+        return handSize;
+    }
+
+    /**
+     * @brief Get maximum card slots on hand
+     *
+     * @return int Max card slots (array size)
+     */
     int getSize() const {
         return size;
+    }
+
+    /**
+     * @brief Draws 2 or less cards from deck
+     *
+     * @param obj Deck class object
+     */
+    void drawCards(Deck obj) {
+        std::string* deck = obj.getDeck();
+        int deckSize = obj.getDeckSize();  // PP size
+
+        int firstIndex = -1;
+        int secondIndex = -1;
+        for (int i = numCards; i < size - numCards; i++) {
+            if (numCards + 1 > deckSize) break;
+
+            if (deck[i] != "" && firstIndex == -1) {
+                firstIndex = i;
+                numCards++;
+            } else if (deck[i] != "" && secondIndex == -1) {
+                secondIndex = i;
+                numCards++;
+                break;
+            }
+        }
+
+        setCard(numCards, deck[firstIndex]);
+        setCard(numCards + 1, deck[secondIndex]);
+        deck[firstIndex] = "";
+        deck[secondIndex] = "";
+
+        int prevIndex = 0;
+        for (int i = 0; i < deckSize; i++) {
+            if (deck[i] != "") {
+                deck[prevIndex] = deck[i];
+                prevIndex++;
+            }
+        }
+        for (int i = prevIndex; i < deckSize; i++) {
+            deck[i] = "";
+        }
+    }
+
+    /**
+     * @brief Get a formatted string of all cards on hand (optional: print to console)
+     *
+     * @param print Whether to print to console or not
+     * @return std::string All cards on hand (formatted string)
+     */
+    std::string printCards(bool print) const {
+        std::stringstream ss;
+
+        for (int i = 0; i < size; i++) {
+            ss << "| " << getCard(i) << " ";
+        }
+        ss << "|";
+
+        std::string output = ss.str();
+        if (print) {
+            std::cout << output << std::endl;
+        }
+
+        return output;
     }
 };
 
 // PROTOTYPES
-void PcardConverter();
-void DcardConverter();
-
 void title();
 void DisplayCards();
 bool exitPromptHandler(bool, bool);
@@ -95,457 +383,7 @@ bool exitPromptHandler(bool, bool);
  * @return Error status (int)
  */
 int blackjack() {
-    while (true) {
-        title();
-        restart = exitPromptHandler(false, false);
-        goto PromptCheck;
-
-    Start:
-        title();
-        std::cout << "Current money: " << playerMoney << std::endl;
-        if (playerMoney == 0) {
-            std::cout << "You are now unable to play. Bye!\n";
-            return 0;
-        }
-        std::cout << "How much do you want to bet? ";
-        std::cin >> bet;
-
-        if (bet > playerMoney) {
-            std::cout << "You don't have that much money.";
-            clrscr();
-        } else {
-            playerMoney -= bet;
-
-            std::cout << "\nThe Dealer is dealing";
-            for (int i = 1; i <= 3; i++) {
-                std::cout.flush();
-                Sleep(1000);
-                std::cout << ".";
-            }
-            clrscr();
-            title();
-
-            srand(time(0));
-
-            int randomCard;
-            A_OneS = 0, A_ElevenS = 0;
-            DA_OneS = 0, DA_ElevenS = 0;
-            PcardSum = 0, DcardSum = 0;
-            PcardCounter = 2, DcardCounter = 2;
-            Ace = false, dAce = false;
-
-            for (DcardIndex = 0; DcardIndex < DcardCounter; DcardIndex++) {
-                randomCard = rand() % 13;
-                DealerCards[DcardIndex] = cards[randomCard];
-                if (dAce == false) {
-                    DcardValue = 0;
-                    DcardConverter();
-                    DcardSum += DcardValue;
-                    if (DealerCards[DcardIndex] == "A") {
-                        dAce = true;
-                        DA_OneS = DcardSum + 1;
-                        DA_ElevenS = DcardSum + 11;
-                    }
-                } else {
-                    if (DealerCards[DcardIndex] == "A") {
-                        DA_ElevenS = DA_OneS + 11;
-                        DA_OneS += 1;
-                    } else {
-                        DcardValue = 0;
-                        DcardConverter();
-                        DA_OneS += DcardValue;
-                        DA_ElevenS += DcardValue;
-                    }
-                }
-            }
-            for (PcardIndex = 0; PcardIndex < PcardCounter; PcardIndex++) {
-                randomCard = rand() % 13;
-                PlayerCards[PcardIndex] = cards[randomCard];
-                if (Ace == false) {
-                    PcardValue = 0;
-                    PcardConverter();
-                    PcardSum += PcardValue;
-                    if (PlayerCards[PcardIndex] == "A") {
-                        Ace = true;
-                        A_OneS = PcardSum + 1;
-                        A_ElevenS = PcardSum + 11;
-                    }
-                } else {
-                    if (PlayerCards[PcardIndex] == "A") {
-                        A_ElevenS = A_OneS + 11;
-                        A_OneS += 1;
-                    } else {
-                        PcardValue = 0;
-                        PcardConverter();
-                        A_OneS += PcardValue;
-                        A_ElevenS += PcardValue;
-                    }
-                }
-            }
-
-            // std::cout << "\n\n";
-            DisplayCards();
-
-            /////* Auto Win Checker */////
-            if (PlayerCards[0] == "A" && (PlayerCards[1] == "10" || PlayerCards[1] == "J" || PlayerCards[1] == "Q" || PlayerCards[1] == "K") || PlayerCards[1] == "A" && (PlayerCards[0] == "10" || PlayerCards[0] == "J" || PlayerCards[0] == "Q" || PlayerCards[0] == "K")) {
-                prize = bet * 1.5;
-                playerMoney += prize;
-                std::cout << "\n\nBLACKJACK! You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                restart = exitPromptHandler(true, true);
-                goto PromptCheck;
-            }
-
-        /////* Hit or Stand */////
-        HITorSTAND:
-            answer = stringPrompt("Hit or Stand? ", true);
-
-            if (answer == "hit") {
-                PcardCounter++;
-                randomCard = rand() % 13;
-                PlayerCards[PcardIndex] = cards[randomCard];
-                if (Ace == false) {
-                    PcardValue = 0;
-                    PcardConverter();
-                    PcardSum += PcardValue;
-                    if (PlayerCards[PcardIndex] == "A") {
-                        Ace = true;
-                        A_OneS = PcardSum + 1;
-                        A_ElevenS = PcardSum + 11;
-                    }
-                } else {
-                    if (PlayerCards[PcardIndex] == "A") {
-                        A_ElevenS = A_OneS + 11;
-                        A_OneS += 1;
-                    } else {
-                        PcardValue = 0;
-                        PcardConverter();
-                        A_OneS += PcardValue;
-                        A_ElevenS += PcardValue;
-                    }
-                }
-
-                PcardIndex++;
-
-                clrscr();
-                title();
-                DisplayCards();
-
-                ///// WIN or LOSE Checker /////
-                if (Ace == false) {
-                    if (PcardSum == 21) {
-                        prize = bet * 1.5;
-                        playerMoney += prize;
-                        std::cout << "BLACKJACK! You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                        restart = exitPromptHandler(true, true);
-                        goto PromptCheck;
-                    } else if (PcardSum > 21) {
-                        std::cout << "Your cards are greater than 21. You lose!\n\n";
-
-                        restart = exitPromptHandler(false, true);
-                        goto PromptCheck;
-                    }
-                } else  // Ace == true
-                {
-                    if (A_OneS == 21 || A_ElevenS == 21) {
-                        prize = bet * 1.5;
-                        playerMoney += prize;
-                        std::cout << "BLACKJACK! You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                        restart = exitPromptHandler(true, true);
-                        goto PromptCheck;
-                    } else if (A_OneS > 21) {
-                        std::cout << "Your cards are greater than 21. You lose!\n\n";
-
-                        restart = exitPromptHandler(false, true);
-                        goto PromptCheck;
-                    }
-                }
-
-                goto HITorSTAND;
-            } else if (answer == "stand") {
-                stand = true;
-                clrscr();
-                title();
-                DisplayCards();
-
-            STAND:
-                if (dAce == false) {
-                    if (DcardSum >= 17) {
-                        // Dealer Auto Win or Lose
-                        if (DcardSum == 21) {
-                            std::cout << "BLACKJACK for the Dealer! You lose.\n";
-
-                            restart = exitPromptHandler(false, true);
-                            goto PromptCheck;
-                        } else if (DcardSum > 21) {
-                            prize = bet * 1.5;
-                            playerMoney += prize;
-                            std::cout << "The Dealer is busted. You win!\n";
-                            std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                            restart = exitPromptHandler(true, true);
-                            goto PromptCheck;
-                        } else if (Ace == false) {
-                            if (PcardSum > DcardSum) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (PcardSum < DcardSum) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            }
-                        } else if (Ace == true) {
-                            if (A_ElevenS < 22 && A_ElevenS > DcardSum) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (A_OneS < 22 && A_OneS > DcardSum) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (A_ElevenS < 22 && A_ElevenS < DcardSum) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (A_OneS < 22 && A_OneS < DcardSum) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (A_ElevenS < 22 && A_ElevenS == DcardSum) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (A_OneS < 22 && A_OneS == DcardSum) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            }
-                        }
-                    } else  // DcardSum < 17
-                    {
-                        DcardCounter++;
-                        randomCard = rand() % 13;
-                        DealerCards[DcardIndex] = cards[randomCard];
-                        DcardValue = 0;
-                        DcardConverter();
-                        DcardSum += DcardValue;
-                        if (DealerCards[DcardIndex] == "A") {
-                            dAce = true;
-                            DA_OneS = DcardSum + 1;
-                            DA_ElevenS = DcardSum + 11;
-                        }
-
-                        DcardIndex++;
-                        clrscr();
-                        title();
-                        DisplayCards();
-                        goto STAND;
-                    }
-                } else  // dAce == true
-                {
-                    if (DA_OneS >= 17 || DA_ElevenS >= 17) {
-                        // Dealer Auto Win or Lose
-                        if (DA_OneS == 21 || DA_ElevenS == 21) {
-                            std::cout << "BLACKJACK for the Dealer! You lose.\n";
-
-                            restart = exitPromptHandler(false, true);
-                            goto PromptCheck;
-                        } else if (DA_OneS > 21) {
-                            prize = bet * 1.5;
-                            playerMoney += prize;
-                            std::cout << "The Dealer is busted. You win!\n";
-                            std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                            restart = exitPromptHandler(true, true);
-                            goto PromptCheck;
-                        } else if (Ace == false) {
-                            if (DA_ElevenS < 22 && PcardSum > DA_ElevenS) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (DA_ElevenS < 22 && PcardSum < DA_ElevenS) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (DA_ElevenS < 22 && PcardSum == DA_ElevenS) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (DA_OneS < 22 && PcardSum > DA_OneS) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (DA_OneS < 22 && PcardSum < DA_OneS) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (DA_OneS < 22 && PcardSum == DA_OneS) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            }
-                        } else if (Ace == true) {
-                            if (DA_ElevenS < 22 && A_ElevenS < 22 && A_ElevenS > DA_ElevenS) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (DA_ElevenS < 22 && A_ElevenS < 22 && A_ElevenS < DA_ElevenS) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (DA_ElevenS < 22 && A_ElevenS < 22 && A_ElevenS == DA_ElevenS) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            }
-                            if (DA_ElevenS < 22 && A_OneS < 22 && A_OneS > DA_ElevenS) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (DA_ElevenS < 22 && A_OneS < 22 && A_OneS < DA_ElevenS) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (DA_ElevenS < 22 && A_OneS < 22 && A_OneS == DA_ElevenS) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            }
-                            if (DA_OneS < 22 && A_ElevenS < 22 && A_ElevenS > DA_OneS) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (DA_OneS < 22 && A_ElevenS < 22 && A_ElevenS < DA_OneS) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (DA_OneS < 22 && A_ElevenS < 22 && A_ElevenS == DA_OneS) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            }
-                            if (DA_OneS < 22 && A_OneS < 22 && A_OneS > DA_OneS) {
-                                prize = bet * 1.5;
-                                playerMoney += prize;
-                                std::cout << "You beat the Dealer. You win!\n";
-                                std::cout << "You won " << prize << "! You now have " << playerMoney << "\n\n";
-
-                                restart = exitPromptHandler(true, true);
-                                goto PromptCheck;
-                            } else if (DA_OneS < 22 && A_OneS < 22 && A_OneS < DA_OneS) {
-                                std::cout << "The Dealer beat you. You lose!\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            } else if (DA_OneS < 22 && A_OneS < 22 && A_OneS == DA_OneS) {
-                                playerMoney += bet;
-                                std::cout << "It's a tie! Your bet is returned to you.\n";
-
-                                restart = exitPromptHandler(false, true);
-                                goto PromptCheck;
-                            }
-                        }
-                    } else  // DA_OneS < 17 || DA_ElevenS < 17
-                    {
-                        DcardCounter++;
-                        randomCard = rand() % 13;
-                        DealerCards[DcardIndex] = cards[randomCard];
-                        if (DealerCards[DcardIndex] == "A") {
-                            DA_ElevenS = DA_OneS + 11;
-                            DA_OneS += 1;
-                        } else {
-                            DcardValue = 0;
-                            DcardConverter();
-                            DA_OneS += DcardValue;
-                            DA_ElevenS += DcardValue;
-                        }
-
-                        DcardIndex++;
-                        clrscr();
-                        title();
-                        DisplayCards();
-                        goto STAND;
-                    }
-                }
-            } else {
-                std::cout << "I didn't catch that. ";
-                goto HITorSTAND;
-            }
-        }
-    }
-
-PromptCheck:
-    if (restart) {
-        stand = false;
-        clrscr();
-        goto Start;
-    } else {
-        std::cout << "\nBye!";
-        return 0;
-    }
+    return 0;
 }
 
 // SYSTEM FUNCTIONS
@@ -600,92 +438,22 @@ bool exitPromptHandler(bool win, bool gameEnded) {
 
 // GAME FUNCTIONS
 
-void DisplayCards() {
+void DisplayCards(Hand dealer, Hand player, bool isStand) {
     std::cout << "Dealer's cards:\n\n";
-    if (stand == false) {
-        std::cout << "|" << DealerCards[0] << "| |?|\n\n";
+    if (isStand) {
+        dealer.printCards(true);
+        std::cout << "Dealer's card count: ";
+        std::cout << player.getTotalValue()[0] << (player.getTotalValue()[1] > 0 ? " or " + std::to_string(player.getTotalValue()[1]) : "") << "\n\n";
     } else {
-        for (int m = 0; m < DcardCounter; m++) {
-            std::cout << "|" << DealerCards[m] << "| ";
-        }
-        std::cout << "\n\n";
-    }
-
-    std::cout << "Dealer's card count: ";
-    if (stand == false) {
-        std::cout << DcardSum - DcardValue << "+\n\n";
-    } else {
-        if (dAce == false) {
-            std::cout << DcardSum << "\n\n";
-        } else {
-            std::cout << DA_OneS;
-            if (DA_ElevenS <= 21) {
-                std::cout << " or " << DA_ElevenS << "\n\n";
-            } else {
-                std::cout << "\n\n";
-            }
-        }
-    }
-
-    std::cout << "Your cards:\n\n";
-    for (int n = 0; n < PcardCounter; n++) {
-        std::cout << "|" << PlayerCards[n] << "| ";
+        dealer.getCard(0);
+        std::cout << "| " << dealer.getCard(0) << " | ? |" << std::endl;
     }
     std::cout << "\n\n";
 
+    std::cout << "Your cards:\n\n";
+    player.printCards(true);
+    std::cout << "\n\n";
+
     std::cout << "Your card count: ";
-    if (Ace == false) {
-        std::cout << PcardSum << "\n\n";
-    } else {
-        std::cout << A_OneS;
-        if (A_ElevenS <= 21) {
-            std::cout << " or " << A_ElevenS << "\n\n";
-        } else {
-            std::cout << "\n\n";
-        }
-    }
-}
-
-void PcardConverter() {
-    if (PlayerCards[PcardIndex] == "2") {
-        PcardValue = 2;
-    } else if (PlayerCards[PcardIndex] == "3") {
-        PcardValue = 3;
-    } else if (PlayerCards[PcardIndex] == "4") {
-        PcardValue = 4;
-    } else if (PlayerCards[PcardIndex] == "5") {
-        PcardValue = 5;
-    } else if (PlayerCards[PcardIndex] == "6") {
-        PcardValue = 6;
-    } else if (PlayerCards[PcardIndex] == "7") {
-        PcardValue = 7;
-    } else if (PlayerCards[PcardIndex] == "8") {
-        PcardValue = 8;
-    } else if (PlayerCards[PcardIndex] == "9") {
-        PcardValue = 9;
-    } else if (PlayerCards[PcardIndex] == "10" || PlayerCards[PcardIndex] == "J" || PlayerCards[PcardIndex] == "Q" || PlayerCards[PcardIndex] == "K") {
-        PcardValue = 10;
-    }
-}
-
-void DcardConverter() {
-    if (DealerCards[DcardIndex] == "2") {
-        DcardValue = 2;
-    } else if (DealerCards[DcardIndex] == "3") {
-        DcardValue = 3;
-    } else if (DealerCards[DcardIndex] == "4") {
-        DcardValue = 4;
-    } else if (DealerCards[DcardIndex] == "5") {
-        DcardValue = 5;
-    } else if (DealerCards[DcardIndex] == "6") {
-        DcardValue = 6;
-    } else if (DealerCards[DcardIndex] == "7") {
-        DcardValue = 7;
-    } else if (DealerCards[DcardIndex] == "8") {
-        DcardValue = 8;
-    } else if (DealerCards[DcardIndex] == "9") {
-        DcardValue = 9;
-    } else if (DealerCards[DcardIndex] == "10" || DealerCards[DcardIndex] == "J" || DealerCards[DcardIndex] == "Q" || DealerCards[DcardIndex] == "K") {
-        DcardValue = 10;
-    }
+    std::cout << player.getTotalValue()[0] << (player.getTotalValue()[1] > 0 ? " or " + std::to_string(player.getTotalValue()[1]) : "") << "\n\n";
 }

@@ -5,7 +5,7 @@ include(CTest)
 enable_testing()
 
 file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS "*.h" "*.cpp")
-file(GLOB_RECURSE REMOVE_CMAKE "build/*")
+file(GLOB_RECURSE REMOVE_CMAKE "build/*" "*.old")
 list(REMOVE_ITEM SOURCE ${REMOVE_CMAKE})
 
 add_executable(GPP ${SOURCE})

@@ -1,14 +1,8 @@
+#ifndef GAMES_H
+#define GAMES_H
 
-// ===== INCLUDES ===== //
-
-#include <string>
-
-// ===== ENGINE ===== //
-
-void clrscr();
-std::string toLowerEach(std::string input);
-std::string stringPrompt(std::string message, bool lowercase);
-
-// ===== GAMES ===== //
+#include "blackjack.cpp"
 
 int blackjack();
+
+#endif  // GAMES_H

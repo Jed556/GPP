@@ -1,13 +1,10 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-// INCLUDES
-#include <cctype>
-#include <iostream>
-#include <string>
-
-void clrscr();
-std::string toLowerEach(std::string input);
-std::string stringPrompt(std::string message, bool lowercase);
+#include "cards/cards.h"
+#include "display/display.h"
+#include "prompt/prompt.h"
+#include "quiz/quiz.h"
+#include "text/text.h"
 
 #endif  // ENGINE_H

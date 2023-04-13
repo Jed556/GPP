@@ -1,6 +1,8 @@
 // HEADERS
+#include <iostream>
+
+#include "../engine/engine.h"
 #include "games.h"
-#include "../engine/games/blackjack.h"
 
 // CONFIG
 int maxHand = 10;

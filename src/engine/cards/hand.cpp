@@ -152,43 +152,48 @@ int Hand::getSize() const {
  * @brief Draws 2 or less cards from deck
  *
  * @param obj Deck class object
+ * @param numDraws Number of cards to draw
  */
-void Hand::drawCards(Deck obj) {
+void Hand::drawCards(Deck obj, int numDraws) {
     std::string* deck = obj.getDeck();
-    int deckSize = obj.getDeckSize();  // PP size
+    int deckSize = obj.getDeckSize();
+    int numDrawn = 0;
 
-    int firstIndex = -1;
-    int secondIndex = -1;
-    for (int i = numCards; i < size - numCards; i++) {
+    std::cout << "\nCards on deck: " << std::endl;
+    for (int i = 0; i < size; i++) {
+        std::cout << (i ? ", " : "") << obj.getCard(i);
+    }
+
+    // Bug here where  the numCards + numDrawn causes incorrect index to be set
+    for (int i = numCards; i < size - numCards && numDrawn < numDraws; i++) {
         if (numCards + 1 > deckSize) break;
 
-        if (deck[i] != "" && firstIndex == -1) {
-            firstIndex = i;
-            numCards++;
-        } else if (deck[i] != "" && secondIndex == -1) {
-            secondIndex = i;
-            numCards++;
-            break;
+        if (deck[i] != "") {
+            setCard(numCards++, deck[i]);
+            obj.setCard(i, "");
+            numDrawn++;
         }
     }
 
-    setCard(numCards, deck[firstIndex]);
-    setCard(numCards + 1, deck[secondIndex]);
-    obj.setCard(firstIndex, "");
-    obj.setCard(secondIndex, "");
-
-    std::cout << "numCards: " << numCards << " firstIndex: " << firstIndex << " secondIndex: " << secondIndex << std::endl;
-    for (int i = 0; i < getSize(); i++) {
-        std::cout << getCard(i) << " ";
+    std::cout << "\nCards on deck: " << std::endl;
+    for (int i = 0; i < size; i++) {
+        std::cout << (i ? ", " : "") << obj.getCard(i);
     }
+
+    std::cout << "\nCards on hand: " << std::endl;
+    for (int i = 0; i < size; i++) {
+        std::cout << (i ? ", " : "") << getCard(i);
+    }
+    std::cout << std::endl;
 
     int prevIndex = 0;
     for (int i = 0; i < deckSize; i++) {
         if (deck[i] != "") {
+            std::cout << "i: " << i << " prevIndex: " << prevIndex << std::endl;
             obj.setCard(prevIndex++, deck[i]);
         }
     }
-    // The bug is here, the code stops here idk why
+    // The bug is here, or before the loop ends
     while (prevIndex < deckSize) {
         obj.setCard(prevIndex++, "");
     }

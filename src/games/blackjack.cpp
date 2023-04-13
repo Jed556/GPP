@@ -26,9 +26,8 @@ void gameLoop() {
 
     // initialize hands
     Hand dealerHand(10), playerHand(10);
-    dealerHand.drawCards(deck);
-      std::cout << "done";
-    playerHand.drawCards(deck);
+    dealerHand.drawCards(deck, 2);
+    playerHand.drawCards(deck, 2);
 
     bool isGameOver = false;
     bool isPlayerTurn = true;
@@ -51,7 +50,7 @@ void gameLoop() {
         while (!hit && !stand) {
             answer = stringPrompt("Do you want to hit or stand? ", true);
             if (answer == "hit") {
-                playerHand.drawCards(deck);
+                playerHand.drawCards(deck, 1);
                 hit = true;
             } else if (answer == "stand") {
                 isPlayerTurn = false;
@@ -67,7 +66,7 @@ void gameLoop() {
     if (!isGameOver) {
         isStand = true;
         while (dealerHand.getTotalValue()[0] < 17) {
-            dealerHand.drawCards(deck);
+            dealerHand.drawCards(deck, 1);
         }
         DisplayCards(dealerHand, playerHand, isStand);
 

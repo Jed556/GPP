@@ -27,8 +27,8 @@ class Deck {
 class Hand {
    private:
     std::string* cards;
-    int numCards;
-    int size;
+    int numCards = 0;
+    int size = 0;
 
    public:
     Hand(int size);
@@ -41,7 +41,7 @@ class Hand {
     std::array<int, 2> getTotalValue() const;
     int getHandSize() const;
     int getSize() const;
-    void drawCards(Deck obj);
+    void drawCards(Deck obj, int numDraws);
     std::string printCards(bool print) const;
 };
 

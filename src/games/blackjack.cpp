@@ -1,6 +1,6 @@
 // HEADERS
 #include "games.h"
-#include "../engine/games/blackjack.h"
+#include "../engine/templates/blackjack.h"
 
 // CONFIG
 int maxHand = 10;

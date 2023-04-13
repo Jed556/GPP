@@ -9,7 +9,7 @@ Start:
     std::string message;
 
     while (true) {
-        blackjack();
+        multiplechoice();
 
         while (true) {
             clrscr();

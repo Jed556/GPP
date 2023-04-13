@@ -9,7 +9,6 @@ class MultiChoiceQs {
     std::string* answers;
     std::string* choices;
     int correctIndex;
-    int numChoices = 4;
     int size = 0;
 
    public:
@@ -26,7 +25,7 @@ class MultiChoiceQs {
     void generateChoices(int index, int num);
     std::string printQuestion(int index, bool print) const;
     bool checkAnswer(std::string answer) const;
-    void askQuestion(int index);
+    void askQuestion(int index, int numChoices);
 };
 
 #endif  // QUIZ_H

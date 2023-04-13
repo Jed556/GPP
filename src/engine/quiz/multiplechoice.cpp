@@ -112,15 +112,17 @@ bool MultiChoiceQs::checkAnswer(std::string answer) const {
     return answer == choices[correctIndex];
 }
 
-void MultiChoiceQs::askQuestion(int index) {
+void MultiChoiceQs::askQuestion(int index, int numChoices) {
     std::string answer;
+    generateChoices(index, numChoices);
     printQuestion(index, true);
-    std::cout << "Enter your answer: ";
+    std::cout << "\nEnter your answer: ";
     std::cin >> answer;
     answer = toupper(answer[0]);  // convert the answer to uppercase
     if (checkAnswer(choices[answer[0] - 'A'])) {
         std::cout << "Correct!" << std::endl;
     } else {
-        std::cout << "Incorrect. The correct answer is " << choices[correctIndex] << std::endl;
+        char letter = 'A' + correctIndex;
+        std::cout << "Incorrect. The correct answer is " << letter << ". " << choices[correctIndex] << std::endl;
     }
 }

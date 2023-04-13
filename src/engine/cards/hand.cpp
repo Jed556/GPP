@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string>
 
-#include "cards.h"
+#include "../cards.h"
 
 /**
  * @brief Construct a new Cards object

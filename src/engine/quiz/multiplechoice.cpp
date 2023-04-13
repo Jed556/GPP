@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "quiz.h"
+#include "../quiz.h"
 
 MultiChoiceQs::MultiChoiceQs(int size, std::string qa[][2]) {
     this->size = size;

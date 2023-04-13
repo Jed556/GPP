@@ -1,10 +1,15 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include "cards/cards.h"
-#include "display/display.h"
-#include "prompt/prompt.h"
-#include "quiz/quiz.h"
-#include "text/text.h"
+#include "cards.h"
+#include "display.h"
+#include "prompt.h"
+#include "quiz.h"
+#include "text.h"
+
+class Engine {
+   public:
+    std::string version();
+};
 
 #endif  // ENGINE_H

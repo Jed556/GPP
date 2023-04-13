@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string>
 
-#include "cards.h"
+#include "../cards.h"
 
 std::string suits[4] = {"♠", "♥", "♦", "♣"};
 std::string faces[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};

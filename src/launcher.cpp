@@ -9,7 +9,7 @@ Engine engine;
 int main() {
 Start:
     std::string message;
-    std::string games[] = {"Blackjack (WIP)", "Multiple Choice", "Exit"};
+    std::string games[] = {"Blackjack (WIP)", "Multiple Choice", "Test", "Exit"};
 
     while (true) {
         // Game selection
@@ -30,6 +30,8 @@ Start:
                 multiplechoice();
                 break;
             case 3:
+                test();
+            case 4:
                 return 0;
             default:
                 message = "I didn't catch that.";

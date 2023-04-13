@@ -1,13 +1,13 @@
 #ifndef BLACKJACK_H
 #define BLACKJACK_H
 
-#include <string>
 #include <array>
+#include <string>
 
 class Deck {
    private:
-    std::string suits[4];
-    std::string faces[13];
+    std::string suits[4] = {"♠", "♥", "♦", "♣"};
+    std::string faces[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
     std::string* cards;
     int size = 0;
 

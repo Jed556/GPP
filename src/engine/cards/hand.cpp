@@ -174,18 +174,23 @@ void Hand::drawCards(Deck obj) {
 
     setCard(numCards, deck[firstIndex]);
     setCard(numCards + 1, deck[secondIndex]);
-    deck[firstIndex] = "";
-    deck[secondIndex] = "";
+    obj.setCard(firstIndex, "");
+    obj.setCard(secondIndex, "");
+
+    std::cout << "numCards: " << numCards << " firstIndex: " << firstIndex << " secondIndex: " << secondIndex << std::endl;
+    for (int i = 0; i < getSize(); i++) {
+        std::cout << getCard(i) << " ";
+    }
 
     int prevIndex = 0;
     for (int i = 0; i < deckSize; i++) {
         if (deck[i] != "") {
-            deck[prevIndex] = deck[i];
-            prevIndex++;
+            obj.setCard(prevIndex++, deck[i]);
         }
     }
-    for (int i = prevIndex; i < deckSize; i++) {
-        deck[i] = "";
+    // The bug is here, the code stops here idk why
+    while (prevIndex < deckSize) {
+        obj.setCard(prevIndex++, "");
     }
 }
 

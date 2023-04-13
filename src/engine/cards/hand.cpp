@@ -158,13 +158,14 @@ void Hand::drawCards(Deck obj, int numDraws) {
     std::string* deck = obj.getDeck();
     int deckSize = obj.getDeckSize();
     int numDrawn = 0;
+    int debug = 1;
 
-    std::cout << "\nCards on deck: " << std::endl;
-    for (int i = 0; i < size; i++) {
-        std::cout << (i ? ", " : "") << obj.getCard(i);
+    if (debug) {
+        std::cout << "\nCards on deck: " << std::endl;
+        for (int i = 0; i < size; i++)
+            std::cout << (i ? ", " : "") << obj.getCard(i);
     }
 
-    // Bug here where  the numCards + numDrawn causes incorrect index to be set
     for (int i = numCards; i < size - numCards && numDrawn < numDraws; i++) {
         if (numCards + 1 > deckSize) break;
 
@@ -175,26 +176,31 @@ void Hand::drawCards(Deck obj, int numDraws) {
         }
     }
 
-    std::cout << "\nCards on deck: " << std::endl;
-    for (int i = 0; i < size; i++) {
-        std::cout << (i ? ", " : "") << obj.getCard(i);
-    }
+    if (debug) {
+        std::cout << "\nCards on hand: " << std::endl;
+        for (int i = 0; i < size; i++)
+            std::cout << (i ? ", " : "") << getCard(i);
 
-    std::cout << "\nCards on hand: " << std::endl;
-    for (int i = 0; i < size; i++) {
-        std::cout << (i ? ", " : "") << getCard(i);
+        std::cout << "\nCards on deck: " << std::endl;
+        for (int i = 0; i < size; i++)
+            std::cout << (i ? ", " : "") << obj.getCard(i);
+
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
 
     int prevIndex = 0;
-    for (int i = 0; i < deckSize; i++) {
+    for (int i = 0; i < 52; i++) {
         if (deck[i] != "") {
-            std::cout << "i: " << i << " prevIndex: " << prevIndex << std::endl;
+            if (debug) std::cout << "i: " << i << " prevIndex: " << prevIndex << std::endl;
             obj.setCard(prevIndex++, deck[i]);
         }
     }
-    // The bug is here, or before the loop ends
-    while (prevIndex < deckSize) {
+    // The bug is here, or before the loop ends - what():  std::bad_alloc
+    // The bug is due to Deck.getDeckSize (similar to Hand.getHandSize) counting
+    // until a blank index is reached instead of returning a fixed value
+    // Will use 52 as a fixed value for now... I'd rather die than fix this
+    while (prevIndex < 52) {
+        if (debug) std::cout << "prevIndex: " << prevIndex << std::endl;
         obj.setCard(prevIndex++, "");
     }
 }

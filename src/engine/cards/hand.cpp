@@ -160,12 +160,6 @@ void Hand::drawCards(Deck obj, int numDraws) {
     int numDrawn = 0;
     int debug = 1;
 
-    if (debug) {
-        std::cout << "\nCards on deck: " << std::endl;
-        for (int i = 0; i < size; i++)
-            std::cout << (i ? ", " : "") << obj.getCard(i);
-    }
-
     for (int i = numCards; i < size - numCards && numDrawn < numDraws; i++) {
         if (numCards + 1 > deckSize) break;
 
@@ -176,22 +170,9 @@ void Hand::drawCards(Deck obj, int numDraws) {
         }
     }
 
-    if (debug) {
-        std::cout << "\nCards on hand: " << std::endl;
-        for (int i = 0; i < size; i++)
-            std::cout << (i ? ", " : "") << getCard(i);
-
-        std::cout << "\nCards on deck: " << std::endl;
-        for (int i = 0; i < size; i++)
-            std::cout << (i ? ", " : "") << obj.getCard(i);
-
-        std::cout << std::endl;
-    }
-
     int prevIndex = 0;
     for (int i = 0; i < 52; i++) {
         if (deck[i] != "") {
-            if (debug) std::cout << "i: " << i << " prevIndex: " << prevIndex << std::endl;
             obj.setCard(prevIndex++, deck[i]);
         }
     }
@@ -200,7 +181,6 @@ void Hand::drawCards(Deck obj, int numDraws) {
     // until a blank index is reached instead of returning a fixed value
     // Will use 52 as a fixed value for now... I'd rather die than fix this
     while (prevIndex < 52) {
-        if (debug) std::cout << "prevIndex: " << prevIndex << std::endl;
         obj.setCard(prevIndex++, "");
     }
 }

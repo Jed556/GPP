@@ -1,25 +1,8 @@
 #ifndef BLACKJACK_H
 #define BLACKJACK_H
 
-// DEPENDENCIES
-#include "../engine.h"
-
-// INCLUDES
-#include <algorithm>
-#include <array>
-#include <cctype>
-#include <iostream>
-#include <random>
-#include <sstream>
 #include <string>
-
-// FUNCTIONS
-
-void title();
-void DisplayCards();
-bool exitPromptHandler(bool, bool);
-
-// CLASSES
+#include <array>
 
 class Deck {
    private:

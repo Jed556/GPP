@@ -1,0 +1,105 @@
+#include <Windows.h>
+
+#include <fstream>
+#include <iostream>
+
+using namespace std;
+
+// WAV header structure
+struct WAVHeader {
+    char chunkID[4];
+    unsigned long chunkSize;
+    char format[4];
+    char subchunk1ID[4];
+    unsigned long subchunk1Size;
+    unsigned short audioFormat;
+    unsigned short numChannels;
+    unsigned long sampleRate;
+    unsigned long byteRate;
+    unsigned short blockAlign;
+    unsigned short bitsPerSample;
+    char subchunk2ID[4];
+    unsigned long subchunk2Size;
+};
+
+int main() {
+    // Open the WAV file
+    ifstream inFile("audiofile.wav", ios::binary);
+    if (!inFile) {
+        cout << "Error opening file" << endl;
+        return -1;
+    }
+
+    // Read the WAV header
+    WAVHeader header;
+    inFile.read((char*)&header, sizeof(header));
+
+    // Check if the file is a valid WAV file
+    if (strncmp(header.chunkID, "RIFF", 4) != 0 ||
+        strncmp(header.format, "WAVE", 4) != 0 ||
+        strncmp(header.subchunk1ID, "fmt ", 4) != 0 ||
+        header.audioFormat != 1) {
+        cout << "Invalid WAV file" << endl;
+        return -1;
+    }
+
+    // Set the audio format
+    WAVEFORMATEX waveFormat;
+    waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+    waveFormat.nChannels = header.numChannels;
+    waveFormat.nSamplesPerSec = header.sampleRate;
+    waveFormat.nAvgBytesPerSec = header.byteRate;
+    waveFormat.nBlockAlign = header.blockAlign;
+    waveFormat.wBitsPerSample = header.bitsPerSample;
+    waveFormat.cbSize = 0;
+
+    // Open the audio device
+    HWAVEOUT hWaveOut;
+    MMRESULT result = waveOutOpen(&hWaveOut, WAVE_MAPPER, &waveFormat, 0, 0, CALLBACK_NULL);
+    if (result != MMSYSERR_NOERROR) {
+        cout << "Error opening audio device" << endl;
+        return -1;
+    }
+
+    // Allocate the audio buffer
+    char* buffer = new char[header.subchunk2Size];
+
+    // Read the audio data
+    inFile.read(buffer, header.subchunk2Size);
+
+    // Prepare the audio header
+    WAVEHDR waveHeader;
+    waveHeader.lpData = buffer;
+    waveHeader.dwBufferLength = header.subchunk2Size;
+    waveHeader.dwBytesRecorded = 0;
+    waveHeader.dwUser = 0;
+    waveHeader.dwFlags = 0;
+    waveHeader.dwLoops = 0;
+    waveOutPrepareHeader(hWaveOut, &waveHeader, sizeof(waveHeader));
+
+    // Play the audio
+    result = waveOutWrite(hWaveOut, &waveHeader, sizeof(waveHeader));
+    if (result != MMSYSERR_NOERROR) {
+        cout << "Error playing audio" << endl;
+        waveOutUnprepareHeader(hWaveOut, &waveHeader, sizeof(waveHeader));
+        waveOutClose(hWaveOut);
+        return -1;
+    }
+
+    // Wait for the audio to finish playing
+    while ((waveHeader.dwFlags & WHDR_DONE) != WHDR_DONE) {
+        Sleep(10);
+    }
+
+    // Unprepare and close the audio device
+    waveOutUnprepareHeader(hWaveOut, &waveHeader, sizeof(waveHeader));
+    waveOutClose(hWaveOut);
+
+    // Free the audio buffer
+    delete[] buffer;
+
+    // Close the WAV file
+    inFile.close();
+
+    return 0;
+}

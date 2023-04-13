@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string>
 
-#include "cards.h"
+#include "../cards.h"
 
 /**
  * @brief Construct a new Cards object
@@ -152,40 +152,36 @@ int Hand::getSize() const {
  * @brief Draws 2 or less cards from deck
  *
  * @param obj Deck class object
+ * @param numDraws Number of cards to draw
  */
-void Hand::drawCards(Deck obj) {
+void Hand::drawCards(Deck obj, int numDraws) {
     std::string* deck = obj.getDeck();
-    int deckSize = obj.getDeckSize();  // PP size
+    int deckSize = obj.getDeckSize();
+    int numDrawn = 0;
+    int debug = 1;
 
-    int firstIndex = -1;
-    int secondIndex = -1;
-    for (int i = numCards; i < size - numCards; i++) {
+    for (int i = numCards; i < size - numCards && numDrawn < numDraws; i++) {
         if (numCards + 1 > deckSize) break;
 
-        if (deck[i] != "" && firstIndex == -1) {
-            firstIndex = i;
-            numCards++;
-        } else if (deck[i] != "" && secondIndex == -1) {
-            secondIndex = i;
-            numCards++;
-            break;
+        if (deck[i] != "") {
+            setCard(numCards++, deck[i]);
+            obj.setCard(i, "");
+            numDrawn++;
         }
     }
-
-    setCard(numCards, deck[firstIndex]);
-    setCard(numCards + 1, deck[secondIndex]);
-    deck[firstIndex] = "";
-    deck[secondIndex] = "";
 
     int prevIndex = 0;
-    for (int i = 0; i < deckSize; i++) {
+    for (int i = 0; i < 52; i++) {
         if (deck[i] != "") {
-            deck[prevIndex] = deck[i];
-            prevIndex++;
+            obj.setCard(prevIndex++, deck[i]);
         }
     }
-    for (int i = prevIndex; i < deckSize; i++) {
-        deck[i] = "";
+    // The bug is here, or before the loop ends - what():  std::bad_alloc
+    // The bug is due to Deck.getDeckSize (similar to Hand.getHandSize) counting
+    // until a blank index is reached instead of returning a fixed value
+    // Will use 52 as a fixed value for now... I'd rather die than fix this
+    while (prevIndex < 52) {
+        obj.setCard(prevIndex++, "");
     }
 }
 

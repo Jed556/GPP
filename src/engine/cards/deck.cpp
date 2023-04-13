@@ -6,15 +6,13 @@
 #include <sstream>
 #include <string>
 
-#include "cards.h"
-
-std::string suits[4] = {"♠", "♥", "♦", "♣"};
-std::string faces[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+#include "../cards.h"
 
 /**
  * @brief Construct a new Deck object
  */
 Deck::Deck() {
+    cards = new std::string[sizeof(suits) / sizeof(suits[0]) * sizeof(faces) / sizeof(faces[0])];
     for (const std::string& suit : suits) {
         for (const std::string& face : faces) {
             cards[size] = suit + face;

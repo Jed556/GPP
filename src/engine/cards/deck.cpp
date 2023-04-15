@@ -84,13 +84,8 @@ std::string* Deck::getDeck() const {
  */
 int Deck::getDeckSize() const {
     int deckSize = 0;  // Small PP
-    for (int i = 0;; i++) {
-        if (cards[i] != "") {
-            deckSize++;
-        } else {
-            break;
-        }
-    }
+    while (cards[deckSize] != "") deckSize++;
+
     return deckSize;
 }
 

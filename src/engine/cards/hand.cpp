@@ -126,14 +126,9 @@ std::array<int, 2> Hand::getTotalValue() const {
  * @return int Population of cards on hand
  */
 int Hand::getHandSize() const {
-    int handSize = 0;  // Small PP
-    for (int i = 0;; i++) {
-        if (cards[i] != "") {
-            handSize++;
-        } else {
-            break;
-        }
-    }
+    int handSize = 0;
+    while (cards[handSize] != "") handSize++;
+
     return handSize;
 }
 

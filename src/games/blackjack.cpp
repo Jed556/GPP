@@ -15,6 +15,7 @@ bool restart;
 
 // PROTOTYPES
 void title();
+void gameLoop();
 bool exitPromptHandler(bool win, bool gameEnded);
 void DisplayCards(Hand dealer, Hand player, bool isStand);
 
@@ -22,7 +23,9 @@ void DisplayCards(Hand dealer, Hand player, bool isStand);
 
 void gameLoop() {
     // initialize game
-    Deck deck;
+    std::string suits[4] = {"♠", "♥", "♦", "♣"};
+    std::string faces[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+    Deck deck(suits, faces);
 
     // initialize hands
     Hand dealerHand(10), playerHand(10);

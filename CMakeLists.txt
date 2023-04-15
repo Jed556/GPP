@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(GPP VERSION 0.1.0)
+project(GPP VERSION 1.4.4)
 
 include(CTest)
 enable_testing()

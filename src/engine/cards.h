@@ -6,20 +6,18 @@
 
 class Deck {
    private:
-    std::string suits[4] = {"♠", "♥", "♦", "♣"};
-    std::string faces[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
     std::string* cards;
-    int size = 0;
+    size_t size = 0;
 
    public:
-    Deck();
+    Deck(std::string* suits, std::string* faces);
     ~Deck();
     void setCard(int index, std::string value);
     void setNull(int index);
     std::string getCard(int index) const;
     std::string* getDeck() const;
     int getDeckSize() const;
-    int getSize() const;
+    size_t getSize() const;
     void shuffle() const;
     std::string printCards(bool print) const;
 };
@@ -28,10 +26,10 @@ class Hand {
    private:
     std::string* cards;
     int numCards = 0;
-    int size = 0;
+    size_t size = 0;
 
    public:
-    Hand(int size);
+    Hand(size_t size);
     ~Hand();
     void setCard(int index, std::string value);
     void setNull(int index);
@@ -40,7 +38,7 @@ class Hand {
     int getValue(int index) const;
     std::array<int, 2> getTotalValue() const;
     int getHandSize() const;
-    int getSize() const;
+    size_t getSize() const;
     void drawCards(Deck obj, int numDraws);
     std::string printCards(bool print) const;
 };

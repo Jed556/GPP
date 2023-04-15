@@ -11,12 +11,13 @@
 /**
  * @brief Construct a new Deck object
  */
-Deck::Deck() {
-    cards = new std::string[sizeof(suits) / sizeof(suits[0]) * sizeof(faces) / sizeof(faces[0])];
-    for (const std::string& suit : suits) {
-        for (const std::string& face : faces) {
-            cards[size] = suit + face;
-            size++;
+Deck::Deck(std::string* suits, std::string* faces) {
+    size = sizeof(suits) / sizeof(suits[0]) * sizeof(faces) / sizeof(faces[0]);
+    cards = new std::string[size];
+    size_t index = 0;
+    for (size_t i = 0; i < sizeof(suits) / sizeof(suits[0]); i++) {
+        for (size_t j = 0; j < sizeof(faces) / sizeof(faces[0]); j++) {
+            cards[index++] = suits[i] + faces[j];
         }
     }
     shuffle();
@@ -83,22 +84,17 @@ std::string* Deck::getDeck() const {
  */
 int Deck::getDeckSize() const {
     int deckSize = 0;  // Small PP
-    for (int i = 0;; i++) {
-        if (cards[i] != "") {
-            deckSize++;
-        } else {
-            break;
-        }
-    }
+    while (cards[deckSize] != "") deckSize++;
+
     return deckSize;
 }
 
 /**
  * @brief Get maximum card slots on hand
  *
- * @return int Max card slots (array size)
+ * @return unsigned int Max card slots (array size)
  */
-int Deck::getSize() const {
+size_t Deck::getSize() const {
     return size;
 }
 

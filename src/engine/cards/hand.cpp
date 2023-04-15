@@ -13,11 +13,9 @@
  *
  * @param size Maximum number of cards on hand or array size (default: 10)
  */
-Hand::Hand(int size)
+Hand::Hand(size_t size)
     : cards(nullptr), size(0) {
-    if (size <= 0) {
-        size = 10;
-    }
+    if (size <= 0) size = 10;
     cards = new std::string[size];
     this->size = size;
 }
@@ -144,7 +142,7 @@ int Hand::getHandSize() const {
  *
  * @return int Max card slots (array size)
  */
-int Hand::getSize() const {
+size_t Hand::getSize() const {
     return size;
 }
 
@@ -154,11 +152,10 @@ int Hand::getSize() const {
  * @param obj Deck class object
  * @param numDraws Number of cards to draw
  */
-void Hand::drawCards(Deck obj, int numDraws) {
+void Hand::drawCards(class Deck obj, int numDraws) {
     std::string* deck = obj.getDeck();
-    int deckSize = obj.getDeckSize();
+    int deckSize = obj.getSize();
     int numDrawn = 0;
-    int debug = 1;
 
     for (int i = numCards; i < size - numCards && numDrawn < numDraws; i++) {
         if (numCards + 1 > deckSize) break;
@@ -171,16 +168,13 @@ void Hand::drawCards(Deck obj, int numDraws) {
     }
 
     int prevIndex = 0;
-    for (int i = 0; i < 52; i++) {
+    for (int i = 0; i < deckSize; i++) {
         if (deck[i] != "") {
             obj.setCard(prevIndex++, deck[i]);
         }
     }
-    // The bug is here, or before the loop ends - what():  std::bad_alloc
-    // The bug is due to Deck.getDeckSize (similar to Hand.getHandSize) counting
-    // until a blank index is reached instead of returning a fixed value
-    // Will use 52 as a fixed value for now... I'd rather die than fix this
-    while (prevIndex < 52) {
+
+    while (prevIndex < deckSize) {
         obj.setCard(prevIndex++, "");
     }
 }

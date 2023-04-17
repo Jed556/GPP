@@ -90,7 +90,7 @@ std::string* Deck::getDeck() const {
  */
 int Deck::getDeckSize() const {
     int deckSize = 0;  // Small PP
-    while (cards[deckSize] != "") deckSize++;
+    while (cards[deckSize] != "" && deckSize < size) deckSize++;
 
     return deckSize;
 }
@@ -123,7 +123,7 @@ void Deck::shuffle() const {
 std::string Deck::printCards(bool print) const {
     std::stringstream ss;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < getDeckSize(); i++) {
         ss << "| " << getCard(i) << " ";
     }
     ss << "|";

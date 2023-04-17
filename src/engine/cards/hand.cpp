@@ -127,7 +127,7 @@ std::array<int, 2> Hand::getTotalValue() const {
  */
 int Hand::getHandSize() const {
     int handSize = 0;
-    while (cards[handSize] != "") handSize++;
+    while (cards[handSize] != "" && handSize < size) handSize++;
 
     return handSize;
 }
@@ -185,7 +185,7 @@ void Hand::drawCards(Deck& obj, int numDraws) {
 std::string Hand::printCards(bool print) const {
     std::stringstream ss;
 
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < getHandSize(); i++) {
         ss << "| " << getCard(i) << " ";
     }
     ss << "|";

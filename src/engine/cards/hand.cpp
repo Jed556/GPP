@@ -5,6 +5,7 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "../cards.h"
 
@@ -95,29 +96,41 @@ int Hand::getValue(int index) const {
 }
 
 /**
- * @brief Get the total value of all cards on hand
+ * @brief Generate all possible hand combinations with aces
  *
- * @return std::array<int, 2> Total value of cards on hand
+ * @param i Index of current card to consider
+ * @param sum Current sum of cards
+ * @param num_aces Number of aces in hand
+ * @param results Array of possible hand combinations
  */
-std::array<int, 2> Hand::getTotalValue() const {
-    int sum = 0;
-    int num_aces = 0;
-    for (int i = 0; i < size; i++) {
-        int card_value = getValue(i);
-        if (card_value == 1) {
-            num_aces++;
-        }
-        sum += card_value;
+void Hand::generateTotalValues(int i, int sum, int num_aces, std::vector<int>& results) const {
+    if (i == getHandSize()) {
+        results.push_back(sum);
+        return;
     }
 
-    std::array<int, 2> total_value{sum, 0};
-    if (num_aces > 0) {
-        int ace_high_sum = sum + 10 * num_aces;
-        if (ace_high_sum <= 21) {
-            total_value[1] = ace_high_sum;
+    int card_value = getValue(i);
+    if (card_value == 1) {
+        num_aces++;
+        generateTotalValues(i + 1, sum + 1, num_aces, results);
+        if (num_aces > 1) {
+            generateTotalValues(i + 1, sum + 11, num_aces, results);
         }
+        num_aces--;
+    } else {
+        generateTotalValues(i + 1, sum + card_value, num_aces, results);
     }
-    return total_value;
+}
+
+/**
+ * @brief Get all possible hand combinations with aces
+ *
+ * @return std::vector<int> Array of possible hand combinations
+ */
+std::vector<int> Hand::getTotalValues() const {
+    std::vector<int> results;
+    generateTotalValues(0, 0, 0, results);
+    return results;
 }
 
 /**
@@ -152,8 +165,6 @@ void Hand::drawCards(Deck& obj, int numDraws) {
     int deckSize = obj.getSize();
     int numDrawn = 0;
 
-    std::cout << "hi there" << std::endl;
-    obj.printCards(true);
     for (int i = numCards; i < size - numCards && numDrawn < numDraws; i++) {
         if (numCards + 1 > deckSize) break;
 
@@ -192,8 +203,29 @@ std::string Hand::printCards(bool print) const {
 
     std::string output = ss.str();
     if (print) {
-        std::cout << output << std::endl;
+        std::cout << output;
     }
 
     return output;
+}
+
+/**
+ * @brief Print all possible hand value combinations with aces
+ *
+ * @param print If true, print the combinations to stdout
+ * @return std::string Formatted string of all possible hand value combinations
+ */
+std::string Hand::printTotalValues(bool print) const {
+    std::vector<int> values = getTotalValues();
+
+    std::stringstream ss;
+    for (int i = 0; i < values.size(); i++) {
+        ss << (i > 0 ? ", " : "") << values[i];
+    }
+
+    if (print) {
+        std::cout << ss.str();
+    }
+
+    return ss.str();
 }

@@ -3,6 +3,7 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 class Deck {
    private:
@@ -40,11 +41,13 @@ class Hand {
     std::string getCard(int index) const;
     std::string* getHand() const;
     int getValue(int index) const;
-    std::array<int, 2> getTotalValue() const;
+    void generateTotalValues(int i, int sum, int num_aces, std::vector<int>& results) const;
+    std::vector<int> getTotalValues() const;
     int getHandSize() const;
     size_t getSize() const;
     void drawCards(Deck& obj, int numDraws);
     std::string printCards(bool print) const;
+    std::string printTotalValues(bool print) const;
 };
 
 #endif  // BLACKJACK_H

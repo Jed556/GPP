@@ -23,9 +23,9 @@ void DisplayCards(Hand dealer, Hand player, bool isStand);
 
 void gameLoop() {
     // initialize game
-    std::string suits[4] = {"♠", "♥", "♦", "♣"};
-    std::string faces[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-    Deck deck(suits, faces);
+    std::string suits[] = {"S", "H", "D", "C"};
+    std::string faces[] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+    Deck deck(suits, 4, faces, 13);
 
     // initialize hands
     Hand dealerHand(10), playerHand(10);

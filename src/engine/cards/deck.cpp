@@ -11,13 +11,19 @@
 /**
  * @brief Construct a new Deck object
  */
-Deck::Deck(std::string* suits, std::string* faces) {
-    size = sizeof(suits) / sizeof(suits[0]) * sizeof(faces) / sizeof(faces[0]);
+Deck::Deck(std::string* suits, int numSuits, std::string* faces, int numFaces) {
+    this->suits = suits;
+    this->numSuits = numSuits;
+    this->faces = faces;
+    this->numFaces = numFaces;
+
+    size = numSuits * numFaces;
     cards = new std::string[size];
     size_t index = 0;
-    for (size_t i = 0; i < sizeof(suits) / sizeof(suits[0]); i++) {
-        for (size_t j = 0; j < sizeof(faces) / sizeof(faces[0]); j++) {
-            cards[index++] = suits[i] + faces[j];
+    for (size_t i = 0; i < numSuits; i++) {
+        for (size_t j = 0; j < numFaces; j++) {
+            cards[index] = suits[i] + faces[j];
+            index++;
         }
     }
     shuffle();

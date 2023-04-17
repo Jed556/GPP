@@ -147,11 +147,13 @@ size_t Hand::getSize() const {
  * @param obj Deck class object
  * @param numDraws Number of cards to draw
  */
-void Hand::drawCards(Deck obj, int numDraws) {
+void Hand::drawCards(Deck& obj, int numDraws) {
     std::string* deck = obj.getDeck();
     int deckSize = obj.getSize();
     int numDrawn = 0;
 
+    std::cout << "hi there" << std::endl;
+    obj.printCards(true);
     for (int i = numCards; i < size - numCards && numDrawn < numDraws; i++) {
         if (numCards + 1 > deckSize) break;
 
